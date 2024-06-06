@@ -7,10 +7,15 @@ import loginService from './services/login'
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
-  const [errorMessage, setErrorMessage] = useState(null)
+  const [notificationMessage, setNotificationMessage] = useState(null)
+  const [notifyError, setNotifyError] = useState(false)
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [user, setUser] = useState(null)
+  const [title, setTitle] = useState('')
+  const [author, setAuthor] = useState('')
+  const [url, setUrl] = useState('')
+  const [triggerBlogUpdate, setBlogUpdate] = useState(false)
 
   useEffect(() => {
     const loggedUserJSON = window.localStorage.getItem('loggedBlogappUser')
@@ -22,10 +27,12 @@ const App = () => {
   }, [])
 
   useEffect(() => {
-    blogService.getAll().then(blogs =>
+    blogService.getAll().then(blogs => {
       setBlogs( blogs )
+      setBlogUpdate(false)
+    }
     )  
-  }, [])
+  }, [triggerBlogUpdate])
 
   const handleLogin = async (event) => {
     event.preventDefault()
@@ -42,16 +49,42 @@ const App = () => {
       setUsername('')
       setPassword('')
     } catch (exception) {
-      setErrorMessage('wrong credentials')
+      setNotificationMessage('wrong credentials')
+      setNotifyError(true)
       setTimeout(() => {
-        setErrorMessage(null)
+        setNotificationMessage(null)
+        setNotifyError(false)
+      }, 5000)
+    }
+  }
+
+  const handleBlogCreation = async (event) => {
+    event.preventDefault()
+    try {
+      await blogService.create({
+        title,
+        author,
+        url
+      })
+      setBlogUpdate(true)
+      setNotificationMessage(`a new blog ${title} by ${author} added`)
+      setTimeout(() => {
+        setNotificationMessage(null)
+      }, 5000)
+      setTitle('')
+      setAuthor('')
+      setUrl('')
+    } catch (exception) {
+      setNotificationMessage('Error creating blog for user.')
+      setNotifyError(true)
+      setTimeout(() => {
+        setNotificationMessage(null)
+        setNotifyError(false)
       }, 5000)
     }
   }
 
   const handleLogout = async (event) => {
-    event.preventDefault()
-
     try {
       window.localStorage.removeItem('loggedBlogappUser')
       blogService.setToken(null)
@@ -59,9 +92,11 @@ const App = () => {
       setUsername('')
       setPassword('')
     } catch (exception) {
-      setErrorMessage('Error proceeding logout')
+      setNotificationMessage('Error proceeding logout')
+      setNotifyError(true)
       setTimeout(() => {
-        setErrorMessage(null)
+        setNotificationMessage(null)
+        setNotifyError(false)
       }, 5000)
     }
   }
@@ -90,10 +125,44 @@ const App = () => {
     </form>      
   )
 
+  const blogForm = () => (
+    <form onSubmit={handleBlogCreation}>
+      <h3>Create new</h3>
+    <div>
+      title
+        <input
+        type="text"
+        value={title}
+        name="Title"
+        onChange={({ target }) => setTitle(target.value)}
+      />
+    </div>
+    <div>
+      author
+        <input
+        type="text"
+        value={author}
+        name="Author"
+        onChange={({ target }) => setAuthor(target.value)}
+      />
+    </div>
+    <div>
+      url
+        <input
+        type="text"
+        value={url}
+        name="URL"
+        onChange={({ target }) => setUrl(target.value)}
+      />
+    </div>
+    <button type="submit">create</button>
+  </form> 
+  )
+
   return (
     <div>
       <h1>Blogs</h1>
-      <Notification message={errorMessage} />
+      <Notification message={notificationMessage} type={notifyError ? 'error' : 'message'}/>
 
       {!user && loginForm()}
       {user && <div>
@@ -102,7 +171,8 @@ const App = () => {
         <Blog key={blog.id} blog={blog} />
       )}
       </div>
-     } 
+     }
+     {user && blogForm()} 
       <Footer />
     </div>
   )
