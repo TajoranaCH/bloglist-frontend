@@ -1,6 +1,8 @@
 import Togglable from "./Togglable"
 import blogService from './../services/blogs'
-import { useState } from 'react'
+import { React, useState } from 'react'
+import PropTypes from 'prop-types'
+
 const Blog = ({ blog, updateBlogs }) => {
   const blogStyle = {
     paddingTop: 10,
@@ -43,6 +45,11 @@ const Blog = ({ blog, updateBlogs }) => {
         {isUserBlog() && <button onClick={deleteBlog}>delete</button>}
       </div></Togglable>
   </div>  
+}
+
+Blog.propTypes = {
+  blog: PropTypes.object.isRequired,
+  updateBlogs: PropTypes.func.isRequired
 }
 
 export default Blog

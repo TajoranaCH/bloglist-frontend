@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, React } from 'react'
 import Blog from './components/Blog'
 import Footer from './components/Footer'
 import Notification from './components/Notification'
@@ -87,7 +87,7 @@ const App = () => {
     }
   }
 
-  const handleLogout = async (event) => {
+  const handleLogout = async () => {
     try {
       window.localStorage.removeItem('loggedBlogappUser')
       blogService.setToken(null)
