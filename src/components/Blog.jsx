@@ -24,7 +24,7 @@ const Blog = ({ blog, updateBlogs }) => {
 
   const isUserBlog = () => {
     const loggedUserJSON = JSON.parse(window.localStorage.getItem('loggedBlogappUser'))
-    return (loggedUserJSON.username === blog.user.username)
+    return (loggedUserJSON && loggedUserJSON.username === blog.user.username)
   }
   const deleteBlog = async () => {
     try {
@@ -36,7 +36,7 @@ const Blog = ({ blog, updateBlogs }) => {
       console.log(e)
     }
   }
- return <div style={blogStyle}>
+ return <div className='blog' style={blogStyle}>
     {blog.title} <Togglable buttonLabel='view' cancelLabel='hide'>
       <div>
         { blog.url } <br/>
