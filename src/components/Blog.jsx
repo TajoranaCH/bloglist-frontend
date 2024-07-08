@@ -1,9 +1,12 @@
 import Togglable from "./Togglable"
-import blogService from './../services/blogs'
-import { React, useState } from 'react'
+import { React } from 'react'
 import PropTypes from 'prop-types'
+import { useDispatch } from "react-redux"
+import { deleteBlog, likeBlog } from "../reducers/blogsReducer"
 
-const Blog = ({ blog, updateBlogs }) => {
+const Blog = ({ blog }) => {
+  const dispatch = useDispatch()
+
   const blogStyle = {
     paddingTop: 10,
     paddingLeft: 2,
@@ -11,12 +14,9 @@ const Blog = ({ blog, updateBlogs }) => {
     borderWidth: 1,
     marginBottom: 5
   }
-  const [updateBlog, setUpdateBlog] = useState(false)
-  const increaseLikes = async () => {
+  const increaseLikes = () => {
     try {
-      await blogService.update(blog.id, { likes: blog.likes + 1 })
-      blog.likes += 1
-      setUpdateBlog(!updateBlog)
+      dispatch(likeBlog(blog))
     } catch(e) {
       console.log(e)
     }
@@ -26,11 +26,10 @@ const Blog = ({ blog, updateBlogs }) => {
     const loggedUserJSON = JSON.parse(window.localStorage.getItem('loggedBlogappUser'))
     return (loggedUserJSON && loggedUserJSON.username === blog.user.username)
   }
-  const deleteBlog = async () => {
+  const deleteB = async () => {
     try {
       if(window.confirm(`Remove blog ${blog.title} by ${blog.author}?`)) {
-      await blogService.deleteBlog(blog.id)
-      updateBlogs()
+      dispatch(deleteBlog(blog.id))
       }
     } catch(e) {
       console.log(e)
@@ -42,14 +41,13 @@ const Blog = ({ blog, updateBlogs }) => {
         { blog.url } <br/>
         { blog.likes } <button onClick={increaseLikes}>like</button><br/>
         { blog.author }<br/>
-        {isUserBlog() && <button onClick={deleteBlog}>delete</button>}
+        {isUserBlog() && <button onClick={deleteB}>delete</button>}
       </div></Togglable>
   </div>  
 }
 
 Blog.propTypes = {
-  blog: PropTypes.object.isRequired,
-  updateBlogs: PropTypes.func.isRequired
+  blog: PropTypes.object.isRequired
 }
 
 export default Blog
