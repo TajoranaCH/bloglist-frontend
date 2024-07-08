@@ -4,6 +4,9 @@ import './index.css'
 import React from 'react'
 import store from './store'
 import { Provider } from 'react-redux'
+import {
+    BrowserRouter as Router
+  } from "react-router-dom"
 
 ReactDOM.createRoot(document.getElementById('root')).render(<Provider store={store}>
-<App /></Provider>)
+<Router><App /></Router></Provider>)

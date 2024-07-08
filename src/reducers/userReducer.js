@@ -1,6 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit'
 import loginService from './../services/login'
 import { setNotification } from './notificationReducer'
+
 const userSlice = createSlice({
     name: 'user',
     initialState: {},
@@ -20,10 +21,9 @@ export const login = (username, password) => {
       window.localStorage.setItem(
         'loggedBlogappUser', JSON.stringify(user)
       )
-      setToken(user.token)
       dispatch(userSlice.actions.set(user))
   } catch (e) {
-    if (e.response.status == 401) {
+    if (e || e.response.status == 401) {
       dispatch(setNotification('User or password not valid', 5, true))
     }
   }
