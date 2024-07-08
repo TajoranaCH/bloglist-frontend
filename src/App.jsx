@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, React } from 'react'
+
 import Blog from './components/Blog'
 import Footer from './components/Footer'
 import Notification from './components/Notification'
@@ -7,15 +8,15 @@ import loginService from './services/login'
 import BlogForm from './components/BlogForm'
 import LoginForm from './components/LoginForm'
 import Togglable from './components/Togglable'
+import { setNotification } from './reducers/notificationReducer'
+import { useDispatch } from 'react-redux'
 const App = () => {
   const [blogs, setBlogs] = useState([])
-  const [notificationMessage, setNotificationMessage] = useState(null)
-  const [notifyError, setNotifyError] = useState(false)
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [user, setUser] = useState(null)
   const [triggerBlogUpdate, setBlogUpdate] = useState(false)
-
+  const dispatch = useDispatch()
   const blogFormRef = useRef()
 
   useEffect(() => {
@@ -54,12 +55,7 @@ const App = () => {
       setUsername('')
       setPassword('')
     } catch (exception) {
-      setNotificationMessage('wrong credentials')
-      setNotifyError(true)
-      setTimeout(() => {
-        setNotificationMessage(null)
-        setNotifyError(false)
-      }, 5000)
+      dispatch(setNotification('wrong credentials', 4, true))
     }
   }
 
@@ -73,17 +69,9 @@ const App = () => {
       })
       blogFormRef.current.toggleVisibility()
       setBlogUpdate(true)
-      setNotificationMessage(`a new blog ${title} by ${author} added`)
-      setTimeout(() => {
-        setNotificationMessage(null)
-      }, 5000)
+      dispatch(setNotification(`a new blog ${title} by ${author} added`, 4))
     } catch (exception) {
-      setNotificationMessage('Error creating blog for user.')
-      setNotifyError(true)
-      setTimeout(() => {
-        setNotificationMessage(null)
-        setNotifyError(false)
-      }, 5000)
+      dispatch(setNotification('Error creating blog for user.', 4, true))
     }
   }
 
@@ -95,19 +83,14 @@ const App = () => {
       setUsername('')
       setPassword('')
     } catch (exception) {
-      setNotificationMessage('Error proceeding logout')
-      setNotifyError(true)
-      setTimeout(() => {
-        setNotificationMessage(null)
-        setNotifyError(false)
-      }, 5000)
+      dispatch(setNotification('Error proceeding logout.', 4, true))
     }
   }
 
   return (
     <div>
       <h1>Blogs</h1>
-      <Notification message={notificationMessage} type={notifyError ? 'error' : 'message'}/>
+      <Notification />
       {!user && <LoginForm handleSubmit={handleLogin} handleUsernameChange={(event) => setUsername(event.target.value)} handlePasswordChange={(event) => setPassword(event.target.value)} username={username} password={password}/>}
       {user && <div>
        <p>{user.name} logged in <button type="submit" onClick={handleLogout}>logout</button></p>
