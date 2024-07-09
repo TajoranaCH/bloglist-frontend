@@ -13,7 +13,7 @@ import { initializeBlogs } from './reducers/blogsReducer'
 import { retreiveUser, logout } from './reducers/userReducer'
 import { getAll } from './services/users'
 import { setToken } from './services/blogs'
-import { Routes, Route, useMatch
+import { Routes, Route, useMatch, Link
 } from "react-router-dom"
 
 const App = () => {
@@ -38,12 +38,9 @@ const App = () => {
 
   const Login = () => <>
       <h1>Blogs</h1>
-        <Notification />
-        {!user.name && <LoginForm />}
-        {user.name && <div>
-        <p>{user.name} logged in <button type="submit" onClick={() => dispatch(logout())}>logout</button></p></div>}
-
-  </>
+      <Notification />
+        <LoginForm />
+      </>
 
   const Blogs = () => <>
         {user.name && blogs.map(blog =>
@@ -58,14 +55,22 @@ const App = () => {
     ? allUsers.find(u => u.id === matchUser.params.id)
     : null
   const urlBlog = matchBlog ? blogs.find(b => b.id === matchBlog.params.id) : null
-
+  const padding = {
+    padding: 5
+  }
+  if (!user.name) return <Login />
   return (
     <div>
-      <Login />
+      <nav style={ { backgroundColor: '#e9e9e9', padding: 5, fontSize: '1.23em' } }>
+      <Link to='/' style={padding}>blogs</Link>
+      <Link to='/users' style={padding}>users</Link>
+        {user.name} logged in <button type="submit" onClick={() => dispatch(logout())}>logout</button>
+      </nav>
+      <h1>Blogs</h1>
+      <Notification />
       <Routes>
       <Route path='/' element={<Blogs />} />
       <Route path="/users" element={<Users users={allUsers} />} />
-      <Route path="/users/:id" element={<User user={urlUser} />} />
       <Route path="/users/:id" element={<User user={urlUser} />} />
       <Route path="/blogs/:id" element={<Blog blog={urlBlog} isFullView={true} />} />
       </Routes>
