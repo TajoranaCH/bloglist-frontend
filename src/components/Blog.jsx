@@ -3,8 +3,11 @@ import { React } from 'react'
 import PropTypes from 'prop-types'
 import { useDispatch } from "react-redux"
 import { deleteBlog, likeBlog } from "../reducers/blogsReducer"
+import { Link } from "react-router-dom"
+const Blog = ({ blog, isFullView = false }) => {
+  console.log(blog)
+  if (!blog) return
 
-const Blog = ({ blog }) => {
   const dispatch = useDispatch()
 
   const blogStyle = {
@@ -16,6 +19,7 @@ const Blog = ({ blog }) => {
   }
   const increaseLikes = () => {
     try {
+      console.log(blog)
       dispatch(likeBlog(blog))
     } catch(e) {
       console.log(e)
@@ -35,19 +39,22 @@ const Blog = ({ blog }) => {
       console.log(e)
     }
   }
- return <div className='blog' style={blogStyle}>
-    {blog.title} <Togglable buttonLabel='view' cancelLabel='hide'>
-      <div>
-        { blog.url } <br/>
-        { blog.likes } <button onClick={increaseLikes}>like</button><br/>
-        { blog.author }<br/>
-        {isUserBlog() && <button onClick={deleteB}>delete</button>}
-      </div></Togglable>
-  </div>  
+  if (!isFullView) {
+    return <div className='blog' style={blogStyle}>
+    <Link to={'/blogs/' + blog.id}>{blog.title}</Link>
+  </div>
+  } 
+  return <div>
+    <h3>{blog.title}</h3>
+    <a href={blog.url} target="blank">{blog.url}</a>
+    <p>{blog.likes} like{blog.likes === 1 ? '' : 's'} <button onClick={increaseLikes}>like</button></p>
+    <p>added by {blog.author} {isUserBlog() && <button onClick={deleteB}>delete</button>}
+    </p>
+  </div>
 }
 
 Blog.propTypes = {
-  blog: PropTypes.object.isRequired
+  blog: PropTypes.object
 }
 
 export default Blog
